@@ -326,8 +326,14 @@
       const isPlaceholderBase = apiBase === "__API_BASE_URL__";
       const isPlaceholderKey = apiKey === "__API_KEY__";
       
+      console.log("DEBUG - isPlaceholderBase:", isPlaceholderBase);
+      console.log("DEBUG - isPlaceholderKey:", isPlaceholderKey);
+      console.log("DEBUG - apiBase.trim().length:", apiBase ? apiBase.trim().length : 0);
+      console.log("DEBUG - apiKey.trim().length:", apiKey ? apiKey.trim().length : 0);
+      
       // Verifica API_BASE_URL
       const apiBaseOk = apiBase && !isPlaceholderBase && apiBase.trim().length > 0;
+      console.log("DEBUG - apiBaseOk:", apiBaseOk);
       const statusApiBase = $("statusApiBase");
       if (apiBaseOk) {
         try {
@@ -353,6 +359,7 @@
       
       // Verifica API_KEY
       const apiKeyOk = apiKey && !isPlaceholderKey && apiKey.trim().length > 0;
+      console.log("DEBUG - apiKeyOk:", apiKeyOk);
       const statusApiKey = $("statusApiKey");
       if (apiKeyOk) {
         statusApiKey.textContent = "✓ Configurado";
