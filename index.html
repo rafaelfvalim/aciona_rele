@@ -318,14 +318,22 @@
           applied: appliedValue
         };
         
+        console.log("Enviando requisição para:", url);
+        console.log("Body:", body);
+        
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify(body),
-          cache: 'no-store'
+          cache: 'no-store',
+          mode: 'cors'
         });
+        
+        console.log("Response status:", response.status);
+        console.log("Response ok:", response.ok);
 
         if (!response.ok) {
           const errorText = await response.text();
