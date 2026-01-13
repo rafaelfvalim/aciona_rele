@@ -15,7 +15,9 @@ docker build -t controle-rele .
 ```bash
 docker run -p 8080:80 \
   -e API_BASE_URL=https://sites-api-rele.aal5pu.easypanel.host \
-  -e API_KEY=sua-chave-secreta \
+  -e API_KEY=XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe \
+  -e LOGIN_USER=admin \
+  -e LOGIN_PASSWORD=senha-secreta \
   controle-rele
 ```
 
@@ -29,6 +31,8 @@ Acesse em: http://localhost:8080
 4. Configure as variáveis de ambiente obrigatórias:
    * `API_BASE_URL`: URL base da API (ex: `https://sites-api-rele.aal5pu.easypanel.host`)
    * `API_KEY`: Chave de autenticação da API
+   * `LOGIN_USER`: Usuário para login
+   * `LOGIN_PASSWORD`: Senha para login
 
 ## Estrutura
 
@@ -46,6 +50,8 @@ O dashboard utiliza variáveis de ambiente para configuração:
    * Exemplo: `https://sites-api-rele.aal5pu.easypanel.host`
 * **API_KEY** (obrigatório): Chave de autenticação da API
    * Esta chave será injetada automaticamente no HTML durante a inicialização do container
+* **LOGIN_USER** (obrigatório): Usuário para autenticação no sistema
+* **LOGIN_PASSWORD** (obrigatório): Senha para autenticação no sistema
 
 ### Configuração no Easypanel
 
@@ -54,9 +60,13 @@ No painel do Easypanel, adicione as variáveis de ambiente na seção de configu
 ```
 API_BASE_URL=https://sites-api-rele.aal5pu.easypanel.host
 API_KEY=XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe
+LOGIN_USER=admin
+LOGIN_PASSWORD=senha-secreta
 ```
 
-**Nota:** As variáveis são injetadas no HTML na inicialização do container. Se você alterar as variáveis, será necessário reiniciar o container.
+**Nota:** As variáveis são injetadas no HTML na inicialização do container através do `entrypoint.sh`. Se você alterar as variáveis, será necessário reiniciar o container.
+
+**Segurança:** As credenciais de login são validadas no cliente. Para maior segurança em produção, considere implementar autenticação no servidor.
 
 ## API
 
