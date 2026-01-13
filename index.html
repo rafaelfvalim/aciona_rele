@@ -314,6 +314,9 @@
       console.log("DEBUG - API_BASE_URL === '__API_BASE_URL__':", apiBase === "__API_BASE_URL__");
       console.log("DEBUG - API_KEY === '__API_KEY__':", apiKey === "__API_KEY__");
       
+      // Verifica se os placeholders ainda estão presentes (não foram substituídos)
+      const placeholderNotReplaced = apiBase === "__API_BASE_URL__" || apiKey === "__API_KEY__";
+      
       // Verifica API_BASE_URL
       const apiBaseOk = apiBase && apiBase !== "__API_BASE_URL__" && apiBase.trim().length > 0;
       const statusApiBase = $("statusApiBase");
@@ -331,6 +334,8 @@
         $("apiUrl").textContent = "Não configurado";
         if (apiBase === "__API_BASE_URL__") {
           statusApiBase.textContent = "✗ Placeholder não substituído";
+        } else if (!apiBase || apiBase.trim().length === 0) {
+          statusApiBase.textContent = "✗ Vazio";
         } else {
           statusApiBase.textContent = "✗ Não configurado";
         }
@@ -346,6 +351,8 @@
       } else {
         if (apiKey === "__API_KEY__") {
           statusApiKey.textContent = "✗ Placeholder não substituído";
+        } else if (!apiKey || apiKey.trim().length === 0) {
+          statusApiKey.textContent = "✗ Vazio";
         } else {
           statusApiKey.textContent = "✗ Não configurado";
         }
