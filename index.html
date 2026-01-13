@@ -470,12 +470,17 @@
 
       try {
         const url = `${apiBase}/rele`;
+        const body = {
+          api_key: apiKey,
+          applied: "on"
+        };
+        
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': apiKey
+            'Content-Type': 'application/json'
           },
+          body: JSON.stringify(body),
           cache: 'no-store'
         });
 
