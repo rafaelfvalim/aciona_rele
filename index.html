@@ -490,15 +490,21 @@
     }
 
     // Inicialização - garante que o DOM está pronto
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', updateApiUrl);
-    } else {
-      // DOM já está pronto
+    function init() {
+      console.log("DEBUG - Inicializando...");
+      console.log("DEBUG - document.readyState:", document.readyState);
       updateApiUrl();
     }
     
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      // DOM já está pronto
+      init();
+    }
+    
     // Também executa após um pequeno delay para garantir que tudo foi renderizado
-    setTimeout(updateApiUrl, 100);
+    setTimeout(init, 200);
   </script>
 </body>
 </html>
