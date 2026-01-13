@@ -403,18 +403,18 @@
 
         const data = await response.json();
         
-        if (data.ok && data.desired) {
-          // Atualiza a interface com o estado atual
-          const estado = data.desired.toLowerCase();
+        if (data.ok && data.last_applied) {
+          // Atualiza a interface com o estado atual (usa last_applied)
+          const estado = data.last_applied.toLowerCase();
           updateButtonStates(estado);
           
           // Mostra informações adicionais se disponíveis
-          if (data.last_applied) {
-            const lastApplied = data.last_applied.toLowerCase();
-            const statusText = estado === "on" ? "Ligado" : "Desligado";
-            setStatus(`Estado: ${statusText} | Último aplicado: ${lastApplied === "on" ? "Ligado" : "Desligado"}`, "info");
+          const statusText = estado === "on" ? "Ligado" : "Desligado";
+          if (data.desired && data.desired !== data.last_applied) {
+            const desiredText = data.desired.toLowerCase() === "on" ? "Ligado" : "Desligado";
+            setStatus(`Estado: ${statusText} | Desejado: ${desiredText}`, "info");
           } else {
-            setStatus(estado === "on" ? "Ligado" : "Desligado", estado === "on" ? "success" : "info");
+            setStatus(`Estado: ${statusText}`, estado === "on" ? "success" : "info");
           }
         } else {
           setStatus("Erro ao carregar estado", "error");
@@ -563,16 +563,12 @@
 
         const data = await response.json();
         
-        // Atualiza o estado após acionar
-        if (data.desired) {
-          updateButtonStates(data.desired.toLowerCase());
-        }
-        
         setStatus("Comando enviado com sucesso", "success");
         const estadoTexto = appliedValue === "on" ? "ligado" : "desligado";
         showMessage(`Relé ${estadoTexto} com sucesso!`, "success");
         
         // Recarrega o estado após um pequeno delay para garantir sincronização
+        // Usa last_applied para mostrar o estado real
         setTimeout(carregarEstadoRele, 1000);
         
       } catch (error) {
