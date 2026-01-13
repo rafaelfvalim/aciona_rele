@@ -45,7 +45,7 @@ O dashboard utiliza variáveis de ambiente para configuração:
 * **API_BASE_URL** (obrigatório): URL base da API
    * Exemplo: `https://sites-api-rele.aal5pu.easypanel.host`
 * **API_KEY** (obrigatório): Chave de autenticação da API
-   * Esta chave será injetada automaticamente no HTML durante o build
+   * Esta chave será injetada automaticamente no HTML durante a inicialização do container
 
 ### Configuração no Easypanel
 
@@ -53,7 +53,7 @@ No painel do Easypanel, adicione as variáveis de ambiente na seção de configu
 
 ```
 API_BASE_URL=https://sites-api-rele.aal5pu.easypanel.host
-API_KEY=sua-chave-secreta
+API_KEY=XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe
 ```
 
 **Nota:** As variáveis são injetadas no HTML na inicialização do container. Se você alterar as variáveis, será necessário reiniciar o container.
@@ -66,7 +66,11 @@ A aplicação faz requisições POST para o endpoint:
 POST {API_BASE_URL}/rele
 Headers:
   Content-Type: application/json
-  X-API-Key: {API_KEY}
+Body:
+{
+  "api_key": "{API_KEY}",
+  "applied": "on" ou "off"
+}
 ```
 
 ## Tecnologias
