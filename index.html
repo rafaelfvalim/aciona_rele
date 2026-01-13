@@ -324,20 +324,22 @@
       
       // Verifica se os placeholders ainda estão presentes (não foram substituídos)
       // Remove espaços antes de comparar
-      const apiBaseTrimmed = apiBase.trim();
-      const apiKeyTrimmed = apiKey.trim();
-      const isPlaceholderBase = apiBaseTrimmed === "__API_BASE_URL__";
-      const isPlaceholderKey = apiKeyTrimmed === "__API_KEY__";
+      const apiBaseTrimmed = (apiBase || "").trim();
+      const apiKeyTrimmed = (apiKey || "").trim();
       
-      console.log("DEBUG - isPlaceholderBase:", isPlaceholderBase, "| apiBaseTrimmed:", apiBaseTrimmed.substring(0, 40));
-      console.log("DEBUG - isPlaceholderKey:", isPlaceholderKey, "| apiKeyTrimmed length:", apiKeyTrimmed.length);
-      console.log("DEBUG - apiBaseTrimmed.length:", apiBaseTrimmed.length);
-      console.log("DEBUG - apiKeyTrimmed.length:", apiKeyTrimmed.length);
-      console.log("DEBUG - Comparação exata apiBaseTrimmed === '__API_BASE_URL__':", apiBaseTrimmed === "__API_BASE_URL__");
-      console.log("DEBUG - Comparação exata apiKeyTrimmed === '__API_KEY__':", apiKeyTrimmed === "__API_KEY__");
+      // Comparação direta e explícita
+      const PLACEHOLDER_BASE = "__API_BASE_URL__";
+      const PLACEHOLDER_KEY = "__API_KEY__";
+      const isPlaceholderBase = apiBaseTrimmed === PLACEHOLDER_BASE;
+      const isPlaceholderKey = apiKeyTrimmed === PLACEHOLDER_KEY;
       
-      // Verifica API_BASE_URL
-      const apiBaseOk = apiBaseTrimmed && !isPlaceholderBase && apiBaseTrimmed.length > 0;
+      console.log("DEBUG - apiBaseTrimmed:", apiBaseTrimmed.substring(0, 50));
+      console.log("DEBUG - apiBaseTrimmed === PLACEHOLDER_BASE:", apiBaseTrimmed === PLACEHOLDER_BASE, "| PLACEHOLDER_BASE:", PLACEHOLDER_BASE);
+      console.log("DEBUG - apiKeyTrimmed length:", apiKeyTrimmed.length);
+      console.log("DEBUG - apiKeyTrimmed === PLACEHOLDER_KEY:", apiKeyTrimmed === PLACEHOLDER_KEY, "| PLACEHOLDER_KEY:", PLACEHOLDER_KEY);
+      
+      // Verifica API_BASE_URL - se não é placeholder E tem conteúdo
+      const apiBaseOk = !isPlaceholderBase && apiBaseTrimmed.length > 0;
       console.log("DEBUG - apiBaseOk:", apiBaseOk, "| apiBaseTrimmed existe:", !!apiBaseTrimmed, "| !isPlaceholderBase:", !isPlaceholderBase, "| length > 0:", apiBaseTrimmed.length > 0);
       const statusApiBase = $("statusApiBase");
       console.log("DEBUG - statusApiBase encontrado:", !!statusApiBase);
@@ -371,8 +373,8 @@
         statusApiBase.className = "config-status error";
       }
       
-      // Verifica API_KEY
-      const apiKeyOk = apiKeyTrimmed && !isPlaceholderKey && apiKeyTrimmed.length > 0;
+      // Verifica API_KEY - se não é placeholder E tem conteúdo
+      const apiKeyOk = !isPlaceholderKey && apiKeyTrimmed.length > 0;
       console.log("DEBUG - apiKeyOk:", apiKeyOk, "| apiKeyTrimmed existe:", !!apiKeyTrimmed, "| !isPlaceholderKey:", !isPlaceholderKey, "| length > 0:", apiKeyTrimmed.length > 0);
       const statusApiKey = $("statusApiKey");
       console.log("DEBUG - statusApiKey encontrado:", !!statusApiKey);
