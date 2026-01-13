@@ -563,8 +563,17 @@
 
         const data = await response.json();
         
+        // Atualiza o estado após acionar
+        if (data.desired) {
+          updateButtonStates(data.desired.toLowerCase());
+        }
+        
         setStatus("Comando enviado com sucesso", "success");
-        showMessage(`Relé acionado com sucesso! ${data.message || ''}`, "success");
+        const estadoTexto = appliedValue === "on" ? "ligado" : "desligado";
+        showMessage(`Relé ${estadoTexto} com sucesso!`, "success");
+        
+        // Recarrega o estado após um pequeno delay para garantir sincronização
+        setTimeout(carregarEstadoRele, 1000);
         
       } catch (error) {
         let errorMsg = error.message || String(error);
