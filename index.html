@@ -387,6 +387,14 @@
       const rememberMe = $("rememberMe").checked;
       const loginMessage = $("loginMessage");
 
+      console.log("Tentativa de login:");
+      console.log("Usuário digitado:", user);
+      console.log("Senha digitada:", password ? "***" : "(vazia)");
+      console.log("LOGIN_USER esperado:", LOGIN_USER);
+      console.log("LOGIN_PASSWORD esperado:", LOGIN_PASSWORD ? "***" : "(vazio)");
+      console.log("Usuário match:", user === LOGIN_USER);
+      console.log("Senha match:", password === LOGIN_PASSWORD);
+
       if (!user || !password) {
         loginMessage.textContent = "Preencha usuário e senha";
         loginMessage.className = "message show error";
