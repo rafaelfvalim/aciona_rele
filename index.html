@@ -203,11 +203,79 @@
       border: 1px solid rgba(241, 181, 74, .3);
       color: var(--warn);
     }
+
+    input[type="text"], input[type="password"]{
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      padding: 12px 16px;
+      font-size: 14px;
+      outline: none;
+      transition: transform .06s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+      width: 100%;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(130,160,255,.45);
+    }
+
+    .login-form{
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hidden{
+      display: none !important;
+    }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <!-- Tela de Login -->
+  <div class="wrap" id="loginScreen">
+    <div class="shell">
+      <div class="topbar">
+        <div class="title">
+          <h1>Controle de Relé</h1>
+          <div class="subtitle">
+            <span class="badge">Acesso Restrito</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="status-box">
+          <div class="status-label">Login</div>
+          <div class="login-form">
+            <div class="form-group">
+              <label class="status-label">Usuário</label>
+              <input type="text" id="loginUser" placeholder="Digite seu usuário" autocomplete="username" />
+            </div>
+            <div class="form-group">
+              <label class="status-label">Senha</label>
+              <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" />
+            </div>
+            <button onclick="fazerLogin()" style="margin-top: 8px;">
+              Entrar
+            </button>
+            <div class="message" id="loginMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tela Principal -->
+  <div class="wrap hidden" id="mainScreen">
     <div class="shell">
       <div class="topbar">
         <div class="title">
@@ -254,6 +322,8 @@
   <script>
     const API_BASE_URL = "__API_BASE_URL__";
     const API_KEY = "__API_KEY__";
+    const LOGIN_USER = "__LOGIN_USER__";
+    const LOGIN_PASSWORD = "__LOGIN_PASSWORD__";
 
     const $ = (id) => document.getElementById(id);
     const messageEl = $("message");
@@ -262,6 +332,65 @@
     const appliedStatusEl = $("appliedStatus");
     const btnOn = $("btnOn");
     const btnOff = $("btnOff");
+    const loginScreen = $("loginScreen");
+    const mainScreen = $("mainScreen");
+
+    // Verifica se já está logado
+    function checkLogin() {
+      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      if (isLoggedIn) {
+        showMainScreen();
+      } else {
+        showLoginScreen();
+      }
+    }
+
+    function showLoginScreen() {
+      loginScreen.classList.remove('hidden');
+      mainScreen.classList.add('hidden');
+    }
+
+    function showMainScreen() {
+      loginScreen.classList.add('hidden');
+      mainScreen.classList.remove('hidden');
+    }
+
+    function fazerLogin() {
+      const user = $("loginUser").value.trim();
+      const password = $("loginPassword").value.trim();
+      const loginMessage = $("loginMessage");
+
+      if (!user || !password) {
+        loginMessage.textContent = "Preencha usuário e senha";
+        loginMessage.className = "message show error";
+        return;
+      }
+
+      if (user === LOGIN_USER && password === LOGIN_PASSWORD) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        loginMessage.className = "message";
+        showMainScreen();
+      } else {
+        loginMessage.textContent = "Usuário ou senha incorretos";
+        loginMessage.className = "message show error";
+        $("loginPassword").value = "";
+      }
+    }
+
+    // Permite fazer login pressionando Enter
+    document.addEventListener('DOMContentLoaded', function() {
+      $("loginPassword").addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          fazerLogin();
+        }
+      });
+      $("loginUser").addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          $("loginPassword").focus();
+        }
+      });
+      checkLogin();
+    });
 
     function updateButtonStates(activeValue) {
       if (activeValue === "on") {

@@ -4,10 +4,14 @@
 # Define valores padrão se não estiverem definidos
 API_BASE_URL="${API_BASE_URL:-}"
 API_KEY="${API_KEY:-}"
+LOGIN_USER="${LOGIN_USER:-}"
+LOGIN_PASSWORD="${LOGIN_PASSWORD:-}"
 
 # Substitui placeholders no HTML
 sed -i "s|__API_BASE_URL__|${API_BASE_URL}|g" /usr/share/nginx/html/index.html
 sed -i "s|__API_KEY__|${API_KEY}|g" /usr/share/nginx/html/index.html
+sed -i "s|__LOGIN_USER__|${LOGIN_USER}|g" /usr/share/nginx/html/index.html
+sed -i "s|__LOGIN_PASSWORD__|${LOGIN_PASSWORD}|g" /usr/share/nginx/html/index.html
 
 # Inicia o nginx
 exec nginx -g "daemon off;"
