@@ -9,11 +9,9 @@
     :root{
       --bg: #0b1020;
       --surface: rgba(255,255,255,.06);
-      --surface-2: rgba(255,255,255,.08);
       --border: rgba(255,255,255,.12);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.68);
-      --muted-2: rgba(255,255,255,.55);
       --shadow: 0 18px 40px rgba(0,0,0,.35);
       --radius: 18px;
       --radius-sm: 14px;
@@ -205,50 +203,6 @@
       border: 1px solid rgba(241, 181, 74, .3);
       color: var(--warn);
     }
-
-    .config-box{
-      margin-bottom: 24px;
-      padding: 16px;
-      border-radius: var(--radius-sm);
-      background: rgba(0,0,0,.18);
-      border: 1px solid var(--border);
-    }
-
-    .config-item{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-
-    .config-item:last-child{
-      border-bottom: none;
-    }
-
-    .config-label{
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .config-status{
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 600;
-    }
-
-    .config-status.ok{
-      background: rgba(39, 194, 155, .2);
-      color: var(--ok);
-      border: 1px solid rgba(39, 194, 155, .3);
-    }
-
-    .config-status.error{
-      background: rgba(255, 91, 110, .2);
-      color: var(--bad);
-      border: 1px solid rgba(255, 91, 110, .3);
-    }
   </style>
 </head>
 
@@ -259,32 +213,16 @@
         <div class="title">
           <h1>Controle de Relé</h1>
           <div class="subtitle">
-            <span class="badge"><span class="dot"></span> API: <strong id="apiUrl">—</strong></span>
-            <span class="badge" id="badgeStatus"><span class="dot"></span> Status: <strong>—</strong></span>
+            <span class="badge"><span class="dot"></span> API: <strong id="apiUrl">sites-api-rele.aal5pu.easypanel.host</strong></span>
+            <span class="badge" id="badgeStatus"><span class="dot"></span> Status: <strong>Pronto</strong></span>
           </div>
         </div>
       </div>
 
       <div class="content">
-        <!-- Campos ocultos para variáveis de ambiente -->
-        <input id="apiBase" type="hidden" value="__API_BASE_URL__" />
-        <input id="apiKey" type="hidden" value="__API_KEY__" />
-
-        <div class="config-box" id="configBox">
-          <div class="status-label" style="margin-bottom: 12px;">Configuração</div>
-          <div class="config-item">
-            <span class="config-label">API_BASE_URL</span>
-            <span class="config-status" id="statusApiBase">Verificando...</span>
-          </div>
-          <div class="config-item">
-            <span class="config-label">API_KEY</span>
-            <span class="config-status" id="statusApiKey">Verificando...</span>
-          </div>
-        </div>
-
         <div class="status-box">
           <div class="status-label">Status da Conexão</div>
-          <div class="status-value" id="connectionStatus">Aguardando...</div>
+          <div class="status-value" id="connectionStatus">Pronto</div>
         </div>
 
         <button id="btnAcionar" onclick="acionarRele()">
@@ -297,132 +235,14 @@
   </div>
 
   <script>
+    const API_BASE_URL = "https://sites-api-rele.aal5pu.easypanel.host";
+    const API_KEY = "XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe";
+
     const $ = (id) => document.getElementById(id);
     const btnAcionar = $("btnAcionar");
     const messageEl = $("message");
     const connectionStatusEl = $("connectionStatus");
     const badgeStatusEl = $("badgeStatus");
-
-    // Atualiza a URL da API no badge e verifica configuração
-    function updateApiUrl() {
-      const apiBaseEl = $("apiBase");
-      const apiKeyEl = $("apiKey");
-      
-      if (!apiBaseEl || !apiKeyEl) {
-        console.error("Elementos não encontrados!");
-        return;
-      }
-      
-      const apiBase = apiBaseEl.value || "";
-      const apiKey = apiKeyEl.value || "";
-      
-      // Debug: log dos valores lidos (sem expor a chave completa)
-      console.log("DEBUG - API_BASE_URL:", apiBase ? `${apiBase.substring(0, 30)}...` : "(vazio)");
-      console.log("DEBUG - API_KEY:", apiKey ? `(${apiKey.length} caracteres)` : "(vazio)");
-      console.log("DEBUG - API_BASE_URL === '__API_BASE_URL__':", apiBase === "__API_BASE_URL__");
-      console.log("DEBUG - API_KEY === '__API_KEY__':", apiKey === "__API_KEY__");
-      
-      // Verifica se os placeholders ainda estão presentes (não foram substituídos)
-      // Remove espaços antes de comparar
-      const apiBaseTrimmed = (apiBase || "").trim();
-      const apiKeyTrimmed = (apiKey || "").trim();
-      
-      // Comparação direta e explícita
-      const PLACEHOLDER_BASE = "__API_BASE_URL__";
-      const PLACEHOLDER_KEY = "__API_KEY__";
-      const isPlaceholderBase = apiBaseTrimmed === PLACEHOLDER_BASE;
-      const isPlaceholderKey = apiKeyTrimmed === PLACEHOLDER_KEY;
-      
-      console.log("DEBUG - apiBaseTrimmed:", apiBaseTrimmed.substring(0, 50));
-      console.log("DEBUG - apiBaseTrimmed === PLACEHOLDER_BASE:", apiBaseTrimmed === PLACEHOLDER_BASE, "| PLACEHOLDER_BASE:", PLACEHOLDER_BASE);
-      console.log("DEBUG - apiKeyTrimmed length:", apiKeyTrimmed.length);
-      console.log("DEBUG - apiKeyTrimmed === PLACEHOLDER_KEY:", apiKeyTrimmed === PLACEHOLDER_KEY, "| PLACEHOLDER_KEY:", PLACEHOLDER_KEY);
-      
-      // Verifica API_BASE_URL - se não é placeholder E tem conteúdo
-      const apiBaseOk = !isPlaceholderBase && apiBaseTrimmed.length > 0;
-      console.log("DEBUG - apiBaseOk:", apiBaseOk, "| apiBaseTrimmed existe:", !!apiBaseTrimmed, "| !isPlaceholderBase:", !isPlaceholderBase, "| length > 0:", apiBaseTrimmed.length > 0);
-      const statusApiBase = $("statusApiBase");
-      console.log("DEBUG - statusApiBase encontrado:", !!statusApiBase);
-      // Força atualização do status
-      if (!statusApiBase) {
-        console.error("DEBUG - statusApiBase não encontrado!");
-        return;
-      }
-      
-      if (apiBaseOk) {
-        console.log("DEBUG - Atualizando statusApiBase para OK");
-        try {
-          const apiUrlEl = $("apiUrl");
-          if (apiUrlEl) {
-            apiUrlEl.textContent = new URL(apiBaseTrimmed).hostname || apiBaseTrimmed;
-          }
-          statusApiBase.textContent = "✓ Configurado";
-          statusApiBase.className = "config-status ok";
-          console.log("DEBUG - statusApiBase atualizado para:", statusApiBase.textContent);
-        } catch (e) {
-          console.error("DEBUG - Erro ao criar URL:", e);
-          const apiUrlEl = $("apiUrl");
-          if (apiUrlEl) {
-            apiUrlEl.textContent = apiBaseTrimmed.substring(0, 30) + "...";
-          }
-          statusApiBase.textContent = "✓ Configurado";
-          statusApiBase.className = "config-status ok";
-        }
-      } else {
-        console.log("DEBUG - apiBaseOk é false, atualizando para erro");
-        const apiUrlEl = $("apiUrl");
-        if (apiUrlEl) {
-          apiUrlEl.textContent = "Não configurado";
-        }
-        if (isPlaceholderBase) {
-          statusApiBase.textContent = "✗ Placeholder não substituído";
-        } else if (!apiBaseTrimmed || apiBaseTrimmed.length === 0) {
-          statusApiBase.textContent = "✗ Vazio";
-        } else {
-          statusApiBase.textContent = "✗ Não configurado";
-        }
-        statusApiBase.className = "config-status error";
-      }
-      
-      // Verifica API_KEY - se não é placeholder E tem conteúdo
-      const apiKeyOk = !isPlaceholderKey && apiKeyTrimmed.length > 0;
-      console.log("DEBUG - apiKeyOk:", apiKeyOk, "| apiKeyTrimmed existe:", !!apiKeyTrimmed, "| !isPlaceholderKey:", !isPlaceholderKey, "| length > 0:", apiKeyTrimmed.length > 0);
-      const statusApiKey = $("statusApiKey");
-      console.log("DEBUG - statusApiKey encontrado:", !!statusApiKey);
-      // Força atualização do status
-      if (!statusApiKey) {
-        console.error("DEBUG - statusApiKey não encontrado!");
-        return;
-      }
-      
-      if (apiKeyOk) {
-        console.log("DEBUG - Atualizando statusApiKey para OK");
-        statusApiKey.textContent = "✓ Configurado";
-        statusApiKey.className = "config-status ok";
-        console.log("DEBUG - statusApiKey atualizado para:", statusApiKey.textContent);
-      } else {
-        console.log("DEBUG - apiKeyOk é false, atualizando para erro");
-        if (isPlaceholderKey) {
-          statusApiKey.textContent = "✗ Placeholder não substituído";
-        } else if (!apiKeyTrimmed || apiKeyTrimmed.length === 0) {
-          statusApiKey.textContent = "✗ Vazio";
-        } else {
-          statusApiKey.textContent = "✗ Não configurado";
-        }
-        statusApiKey.className = "config-status error";
-      }
-      
-      // Atualiza status geral
-      if (apiBaseOk && apiKeyOk) {
-        setStatus("Pronto para acionar", "info");
-      } else if (!apiBaseOk && !apiKeyOk) {
-        setStatus("Configure API_BASE_URL e API_KEY", "error");
-      } else if (!apiBaseOk) {
-        setStatus("Configure API_BASE_URL", "error");
-      } else {
-        setStatus("Configure API_KEY", "error");
-      }
-    }
 
     function setStatus(status, type = "info") {
       connectionStatusEl.textContent = status;
@@ -430,7 +250,7 @@
       
       const statusText = type === "success" ? "Conectado" : 
                         type === "error" ? "Erro" : 
-                        type === "loading" ? "Processando..." : "Aguardando";
+                        type === "loading" ? "Processando..." : "Pronto";
       const statusStrong = badgeStatusEl.querySelector("strong");
       if (statusStrong) {
         statusStrong.textContent = statusText;
@@ -441,37 +261,20 @@
       messageEl.textContent = text;
       messageEl.className = `message show ${type}`;
       
-      // Remove a mensagem após 5 segundos
       setTimeout(() => {
         messageEl.classList.remove("show");
       }, 5000);
     }
 
     async function acionarRele() {
-      const apiBase = $("apiBase").value.replace(/\/+$/, "");
-      const apiKey = $("apiKey").value.trim();
-
-      if (!apiBase || apiBase === "__API_BASE_URL__") {
-        showMessage("Erro: API_BASE_URL não configurada. Configure a variável de ambiente API_BASE_URL no servidor e reinicie o container.", "error");
-        setStatus("Erro de configuração", "error");
-        return;
-      }
-
-      if (!apiKey || apiKey === "__API_KEY__") {
-        showMessage("Erro: API_KEY não configurada. Configure a variável de ambiente API_KEY no servidor e reinicie o container.", "error");
-        setStatus("Erro de configuração", "error");
-        return;
-      }
-
-      // Desabilita o botão durante a requisição
       btnAcionar.disabled = true;
       setStatus("Enviando comando...", "loading");
       messageEl.classList.remove("show");
 
       try {
-        const url = `${apiBase}/rele`;
+        const url = `${API_BASE_URL}/rele`;
         const body = {
-          api_key: apiKey,
+          api_key: API_KEY,
           applied: "on"
         };
         
@@ -503,28 +306,10 @@
         
         setStatus("Erro ao acionar", "error");
         showMessage(`Erro: ${errorMsg}`, "error");
-        console.error("Erro ao acionar relé:", error);
       } finally {
         btnAcionar.disabled = false;
       }
     }
-
-    // Inicialização - garante que o DOM está pronto
-    function init() {
-      console.log("DEBUG - Inicializando...");
-      console.log("DEBUG - document.readyState:", document.readyState);
-      updateApiUrl();
-    }
-    
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      // DOM já está pronto
-      init();
-    }
-    
-    // Também executa após um pequeno delay para garantir que tudo foi renderizado
-    setTimeout(init, 200);
   </script>
 </body>
 </html>
