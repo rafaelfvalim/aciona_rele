@@ -333,22 +333,33 @@
       console.log("DEBUG - isPlaceholderKey:", isPlaceholderKey, "| apiKeyTrimmed length:", apiKeyTrimmed.length);
       console.log("DEBUG - apiBaseTrimmed.length:", apiBaseTrimmed.length);
       console.log("DEBUG - apiKeyTrimmed.length:", apiKeyTrimmed.length);
+      console.log("DEBUG - Comparação exata apiBaseTrimmed === '__API_BASE_URL__':", apiBaseTrimmed === "__API_BASE_URL__");
+      console.log("DEBUG - Comparação exata apiKeyTrimmed === '__API_KEY__':", apiKeyTrimmed === "__API_KEY__");
       
       // Verifica API_BASE_URL
       const apiBaseOk = apiBaseTrimmed && !isPlaceholderBase && apiBaseTrimmed.length > 0;
-      console.log("DEBUG - apiBaseOk:", apiBaseOk);
+      console.log("DEBUG - apiBaseOk:", apiBaseOk, "| apiBaseTrimmed existe:", !!apiBaseTrimmed, "| !isPlaceholderBase:", !isPlaceholderBase, "| length > 0:", apiBaseTrimmed.length > 0);
       const statusApiBase = $("statusApiBase");
+      console.log("DEBUG - statusApiBase encontrado:", !!statusApiBase);
       if (apiBaseOk) {
+        console.log("DEBUG - Atualizando statusApiBase para OK");
         try {
           $("apiUrl").textContent = new URL(apiBaseTrimmed).hostname || apiBaseTrimmed;
-          statusApiBase.textContent = "✓ Configurado";
-          statusApiBase.className = "config-status ok";
+          if (statusApiBase) {
+            statusApiBase.textContent = "✓ Configurado";
+            statusApiBase.className = "config-status ok";
+            console.log("DEBUG - statusApiBase atualizado para:", statusApiBase.textContent);
+          }
         } catch (e) {
+          console.error("DEBUG - Erro ao criar URL:", e);
           $("apiUrl").textContent = apiBaseTrimmed.substring(0, 30) + "...";
-          statusApiBase.textContent = "✓ Configurado";
-          statusApiBase.className = "config-status ok";
+          if (statusApiBase) {
+            statusApiBase.textContent = "✓ Configurado";
+            statusApiBase.className = "config-status ok";
+          }
         }
       } else {
+        console.log("DEBUG - apiBaseOk é false, atualizando para erro");
         $("apiUrl").textContent = "Não configurado";
         if (isPlaceholderBase) {
           statusApiBase.textContent = "✗ Placeholder não substituído";
@@ -362,12 +373,18 @@
       
       // Verifica API_KEY
       const apiKeyOk = apiKeyTrimmed && !isPlaceholderKey && apiKeyTrimmed.length > 0;
-      console.log("DEBUG - apiKeyOk:", apiKeyOk);
+      console.log("DEBUG - apiKeyOk:", apiKeyOk, "| apiKeyTrimmed existe:", !!apiKeyTrimmed, "| !isPlaceholderKey:", !isPlaceholderKey, "| length > 0:", apiKeyTrimmed.length > 0);
       const statusApiKey = $("statusApiKey");
+      console.log("DEBUG - statusApiKey encontrado:", !!statusApiKey);
       if (apiKeyOk) {
-        statusApiKey.textContent = "✓ Configurado";
-        statusApiKey.className = "config-status ok";
+        console.log("DEBUG - Atualizando statusApiKey para OK");
+        if (statusApiKey) {
+          statusApiKey.textContent = "✓ Configurado";
+          statusApiKey.className = "config-status ok";
+          console.log("DEBUG - statusApiKey atualizado para:", statusApiKey.textContent);
+        }
       } else {
+        console.log("DEBUG - apiKeyOk é false, atualizando para erro");
         if (isPlaceholderKey) {
           statusApiKey.textContent = "✗ Placeholder não substituído";
         } else if (!apiKeyTrimmed || apiKeyTrimmed.length === 0) {
