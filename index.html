@@ -58,6 +58,10 @@
       padding: 18px 18px 14px;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(90deg, rgba(127,0,255,.20), rgba(0,212,255,.12));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
     .title{
@@ -216,6 +220,13 @@
       width: 100%;
     }
 
+    input[type="checkbox"]{
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent1);
+    }
+
     input[type="text"]:focus, input[type="password"]:focus{
       box-shadow: var(--focus);
       border-color: rgba(130,160,255,.45);
@@ -263,6 +274,10 @@
             <div class="form-group">
               <label class="status-label">Senha</label>
               <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" />
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: -8px; margin-bottom: 8px;">
+              <input type="checkbox" id="rememberMe" style="width: auto; min-width: auto; cursor: pointer;" />
+              <label for="rememberMe" class="status-label" style="margin: 0; cursor: pointer;">Lembrar-me</label>
             </div>
             <button onclick="fazerLogin()" style="margin-top: 8px;">
               Entrar
@@ -337,11 +352,17 @@
 
     // Verifica se já está logado
     function checkLogin() {
-      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || sessionStorage.getItem('isLoggedIn') === 'true';
       if (isLoggedIn) {
         showMainScreen();
       } else {
         showLoginScreen();
+        // Preenche usuário se estiver salvo
+        const savedUser = localStorage.getItem('savedUser');
+        if (savedUser) {
+          $("loginUser").value = savedUser;
+          $("rememberMe").checked = true;
+        }
       }
     }
 
@@ -358,6 +379,7 @@
     function fazerLogin() {
       const user = $("loginUser").value.trim();
       const password = $("loginPassword").value.trim();
+      const rememberMe = $("rememberMe").checked;
       const loginMessage = $("loginMessage");
 
       if (!user || !password) {
@@ -367,7 +389,14 @@
       }
 
       if (user === LOGIN_USER && password === LOGIN_PASSWORD) {
-        sessionStorage.setItem('isLoggedIn', 'true');
+        if (rememberMe) {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('savedUser', user);
+        } else {
+          sessionStorage.setItem('isLoggedIn', 'true');
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('savedUser');
+        }
         loginMessage.className = "message";
         showMainScreen();
       } else {
@@ -375,6 +404,16 @@
         loginMessage.className = "message show error";
         $("loginPassword").value = "";
       }
+    }
+
+    function fazerLogout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('savedUser');
+      sessionStorage.removeItem('isLoggedIn');
+      showLoginScreen();
+      $("loginUser").value = "";
+      $("loginPassword").value = "";
+      $("rememberMe").checked = false;
     }
 
     // Permite fazer login pressionando Enter
