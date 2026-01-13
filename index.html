@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Controle de Relé</title>
+
+  <style>
+    :root{
+      --bg: #0b1020;
+      --surface: rgba(255,255,255,.06);
+      --surface-2: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted-2: rgba(255,255,255,.55);
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius-sm: 14px;
+      --focus: 0 0 0 3px rgba(130, 160, 255, .35);
+      --accent1: #7f00ff;
+      --accent2: #00d4ff;
+      --ok: #27c29b;
+      --warn: #f1b54a;
+      --bad: #ff5b6e;
+      color-scheme: dark;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Helvetica Neue", "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 600px at 15% 10%, rgba(127,0,255,.28), transparent 60%),
+        radial-gradient(900px 600px at 85% 0%, rgba(0,212,255,.18), transparent 55%),
+        radial-gradient(900px 700px at 50% 95%, rgba(255,91,110,.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      padding: 28px 16px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wrap{
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .shell{
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 6px);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topbar{
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(127,0,255,.20), rgba(0,212,255,.12));
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .2px;
+      line-height: 1.2;
+    }
+
+    .subtitle{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .dot{
+      width:8px; height:8px; border-radius: 99px;
+      background: rgba(255,255,255,.35);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.10);
+    }
+
+    .content{
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .status-box{
+      margin-bottom: 24px;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(0,0,0,.18);
+      border: 1px solid var(--border);
+    }
+
+    .status-label{
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .status-value{
+      font-size: 16px;
+      font-weight: 650;
+      color: var(--text);
+    }
+
+    .status-value.success{
+      color: var(--ok);
+    }
+
+    .status-value.error{
+      color: var(--bad);
+    }
+
+    .status-value.loading{
+      color: var(--warn);
+    }
+
+    button{
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(127,0,255,.55), rgba(0,212,255,.35));
+      border-color: rgba(255,255,255,.14);
+      color: var(--text);
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 650;
+      cursor: pointer;
+      outline: none;
+      transition: transform .06s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+      user-select: none;
+      min-width: 200px;
+    }
+
+    button:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(130,160,255,.45);
+    }
+
+    button:hover{
+      border-color: rgba(255,255,255,.22);
+      background: linear-gradient(90deg, rgba(127,0,255,.68), rgba(0,212,255,.42));
+    }
+
+    button:active{
+      transform: translateY(1px);
+    }
+
+    button:disabled{
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message{
+      margin-top: 20px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      display: none;
+    }
+
+    .message.show{
+      display: block;
+    }
+
+    .message.success{
+      background: rgba(39, 194, 155, .15);
+      border: 1px solid rgba(39, 194, 155, .3);
+      color: var(--ok);
+    }
+
+    .message.error{
+      background: rgba(255, 91, 110, .15);
+      border: 1px solid rgba(255, 91, 110, .3);
+      color: var(--bad);
+    }
+
+    .message.info{
+      background: rgba(241, 181, 74, .15);
+      border: 1px solid rgba(241, 181, 74, .3);
+      color: var(--warn);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="shell">
+      <div class="topbar">
+        <div class="title">
+          <h1>Controle de Relé</h1>
+          <div class="subtitle">
+            <span class="badge"><span class="dot"></span> API: <strong id="apiUrl">—</strong></span>
+            <span class="badge" id="badgeStatus"><span class="dot"></span> Status: <strong>—</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Campos ocultos para variáveis de ambiente -->
+        <input id="apiBase" type="hidden" value="__API_BASE_URL__" />
+        <input id="apiKey" type="hidden" value="__API_KEY__" />
+
+        <div class="status-box">
+          <div class="status-label">Status da Conexão</div>
+          <div class="status-value" id="connectionStatus">Aguardando...</div>
+        </div>
+
+        <button id="btnAcionar" onclick="acionarRele()">
+          Acionar Relé
+        </button>
+
+        <div class="message" id="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const btnAcionar = $("btnAcionar");
+    const messageEl = $("message");
+    const connectionStatusEl = $("connectionStatus");
+    const badgeStatusEl = $("badgeStatus");
+
+    // Atualiza a URL da API no badge
+    function updateApiUrl() {
+      const apiBase = $("apiBase").value;
+      if (apiBase && apiBase !== "__API_BASE_URL__") {
+        $("apiUrl").textContent = new URL(apiBase).hostname || apiBase;
+      } else {
+        $("apiUrl").textContent = "Não configurado";
+      }
+    }
+
+    function setStatus(status, type = "info") {
+      connectionStatusEl.textContent = status;
+      connectionStatusEl.className = `status-value ${type}`;
+      
+      const statusText = type === "success" ? "Conectado" : 
+                        type === "error" ? "Erro" : 
+                        type === "loading" ? "Processando..." : "Aguardando";
+      const statusStrong = badgeStatusEl.querySelector("strong");
+      if (statusStrong) {
+        statusStrong.textContent = statusText;
+      }
+    }
+
+    function showMessage(text, type = "info") {
+      messageEl.textContent = text;
+      messageEl.className = `message show ${type}`;
+      
+      // Remove a mensagem após 5 segundos
+      setTimeout(() => {
+        messageEl.classList.remove("show");
+      }, 5000);
+    }
+
+    async function acionarRele() {
+      const apiBase = $("apiBase").value.replace(/\/+$/, "");
+      const apiKey = $("apiKey").value.trim();
+
+      if (!apiBase || apiBase === "__API_BASE_URL__") {
+        showMessage("Erro: API_BASE_URL não configurada.", "error");
+        setStatus("Erro de configuração", "error");
+        return;
+      }
+
+      if (!apiKey || apiKey === "__API_KEY__") {
+        showMessage("Erro: API_KEY não configurada.", "error");
+        setStatus("Erro de configuração", "error");
+        return;
+      }
+
+      // Desabilita o botão durante a requisição
+      btnAcionar.disabled = true;
+      setStatus("Enviando comando...", "loading");
+      messageEl.classList.remove("show");
+
+      try {
+        const url = `${apiBase}/rele`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey
+          },
+          cache: 'no-store'
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        setStatus("Comando enviado com sucesso", "success");
+        showMessage(`Relé acionado com sucesso! ${data.message || ''}`, "success");
+        
+      } catch (error) {
+        let errorMsg = error.message || String(error);
+        
+        if (errorMsg.includes("Failed to fetch") || errorMsg.includes("network") || errorMsg.includes("CORS")) {
+          errorMsg = "Erro de conexão: Verifique se a API está acessível e se CORS está configurado corretamente.";
+        }
+        
+        setStatus("Erro ao acionar", "error");
+        showMessage(`Erro: ${errorMsg}`, "error");
+        console.error("Erro ao acionar relé:", error);
+      } finally {
+        btnAcionar.disabled = false;
+      }
+    }
+
+    // Inicialização
+    updateApiUrl();
+    setStatus("Pronto", "info");
+  </script>
+</body>
+</html>

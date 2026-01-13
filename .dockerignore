@@ -1,0 +1,12 @@
+# Ignora arquivos desnecessários no build
+*.md
+.git
+.gitignore
+.dockerignore
+Dockerfile
+*.log
+.vscode
+.idea
+__pycache__
+*.pyc
+node_modules
