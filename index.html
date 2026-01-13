@@ -408,14 +408,9 @@
           const estado = data.last_applied.toLowerCase();
           updateButtonStates(estado);
           
-          // Mostra informações adicionais se disponíveis
+          // Mostra apenas o estado atual
           const statusText = estado === "on" ? "Ligado" : "Desligado";
-          if (data.desired && data.desired !== data.last_applied) {
-            const desiredText = data.desired.toLowerCase() === "on" ? "Ligado" : "Desligado";
-            setStatus(`Estado: ${statusText} | Desejado: ${desiredText}`, "info");
-          } else {
-            setStatus(`Estado: ${statusText}`, estado === "on" ? "success" : "info");
-          }
+          setStatus(`Estado: ${statusText}`, estado === "on" ? "success" : "info");
         } else {
           setStatus("Erro ao carregar estado", "error");
         }
