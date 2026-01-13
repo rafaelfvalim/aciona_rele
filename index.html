@@ -340,8 +340,12 @@
       } catch (error) {
         let errorMsg = error.message || String(error);
         
-        if (errorMsg.includes("Failed to fetch") || errorMsg.includes("network") || errorMsg.includes("CORS")) {
-          errorMsg = "Erro de conexão: Verifique se a API está acessível e se CORS está configurado corretamente.";
+        console.error("Erro completo:", error);
+        console.error("Tipo do erro:", error.name);
+        console.error("Stack:", error.stack);
+        
+        if (errorMsg.includes("Failed to fetch") || errorMsg.includes("network") || errorMsg.includes("CORS") || error.name === "TypeError") {
+          errorMsg = `Erro de conexão/CORS: ${errorMsg}. Verifique se a API está acessível e se CORS está configurado. URL: ${API_BASE_URL}/rele`;
         }
         
         setStatus("Erro ao acionar", "error");
