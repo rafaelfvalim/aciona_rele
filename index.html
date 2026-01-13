@@ -308,8 +308,14 @@
       const apiBase = $("apiBase").value;
       const apiKey = $("apiKey").value;
       
+      // Debug: log dos valores lidos (sem expor a chave completa)
+      console.log("DEBUG - API_BASE_URL:", apiBase ? `${apiBase.substring(0, 30)}...` : "(vazio)");
+      console.log("DEBUG - API_KEY:", apiKey ? `(${apiKey.length} caracteres)` : "(vazio)");
+      console.log("DEBUG - API_BASE_URL === '__API_BASE_URL__':", apiBase === "__API_BASE_URL__");
+      console.log("DEBUG - API_KEY === '__API_KEY__':", apiKey === "__API_KEY__");
+      
       // Verifica API_BASE_URL
-      const apiBaseOk = apiBase && apiBase !== "__API_BASE_URL__";
+      const apiBaseOk = apiBase && apiBase !== "__API_BASE_URL__" && apiBase.trim().length > 0;
       const statusApiBase = $("statusApiBase");
       if (apiBaseOk) {
         try {
@@ -323,18 +329,26 @@
         }
       } else {
         $("apiUrl").textContent = "Não configurado";
-        statusApiBase.textContent = "✗ Não configurado";
+        if (apiBase === "__API_BASE_URL__") {
+          statusApiBase.textContent = "✗ Placeholder não substituído";
+        } else {
+          statusApiBase.textContent = "✗ Não configurado";
+        }
         statusApiBase.className = "config-status error";
       }
       
       // Verifica API_KEY
-      const apiKeyOk = apiKey && apiKey !== "__API_KEY__";
+      const apiKeyOk = apiKey && apiKey !== "__API_KEY__" && apiKey.trim().length > 0;
       const statusApiKey = $("statusApiKey");
       if (apiKeyOk) {
         statusApiKey.textContent = "✓ Configurado";
         statusApiKey.className = "config-status ok";
       } else {
-        statusApiKey.textContent = "✗ Não configurado";
+        if (apiKey === "__API_KEY__") {
+          statusApiKey.textContent = "✗ Placeholder não substituído";
+        } else {
+          statusApiKey.textContent = "✗ Não configurado";
+        }
         statusApiKey.className = "config-status error";
       }
       
