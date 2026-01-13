@@ -323,25 +323,28 @@
       console.log("DEBUG - API_KEY === '__API_KEY__':", apiKey === "__API_KEY__");
       
       // Verifica se os placeholders ainda estão presentes (não foram substituídos)
-      const isPlaceholderBase = apiBase === "__API_BASE_URL__";
-      const isPlaceholderKey = apiKey === "__API_KEY__";
+      // Remove espaços antes de comparar
+      const apiBaseTrimmed = apiBase.trim();
+      const apiKeyTrimmed = apiKey.trim();
+      const isPlaceholderBase = apiBaseTrimmed === "__API_BASE_URL__";
+      const isPlaceholderKey = apiKeyTrimmed === "__API_KEY__";
       
-      console.log("DEBUG - isPlaceholderBase:", isPlaceholderBase);
-      console.log("DEBUG - isPlaceholderKey:", isPlaceholderKey);
-      console.log("DEBUG - apiBase.trim().length:", apiBase ? apiBase.trim().length : 0);
-      console.log("DEBUG - apiKey.trim().length:", apiKey ? apiKey.trim().length : 0);
+      console.log("DEBUG - isPlaceholderBase:", isPlaceholderBase, "| apiBaseTrimmed:", apiBaseTrimmed.substring(0, 40));
+      console.log("DEBUG - isPlaceholderKey:", isPlaceholderKey, "| apiKeyTrimmed length:", apiKeyTrimmed.length);
+      console.log("DEBUG - apiBaseTrimmed.length:", apiBaseTrimmed.length);
+      console.log("DEBUG - apiKeyTrimmed.length:", apiKeyTrimmed.length);
       
       // Verifica API_BASE_URL
-      const apiBaseOk = apiBase && !isPlaceholderBase && apiBase.trim().length > 0;
+      const apiBaseOk = apiBaseTrimmed && !isPlaceholderBase && apiBaseTrimmed.length > 0;
       console.log("DEBUG - apiBaseOk:", apiBaseOk);
       const statusApiBase = $("statusApiBase");
       if (apiBaseOk) {
         try {
-          $("apiUrl").textContent = new URL(apiBase).hostname || apiBase;
+          $("apiUrl").textContent = new URL(apiBaseTrimmed).hostname || apiBaseTrimmed;
           statusApiBase.textContent = "✓ Configurado";
           statusApiBase.className = "config-status ok";
         } catch (e) {
-          $("apiUrl").textContent = apiBase.substring(0, 30) + "...";
+          $("apiUrl").textContent = apiBaseTrimmed.substring(0, 30) + "...";
           statusApiBase.textContent = "✓ Configurado";
           statusApiBase.className = "config-status ok";
         }
@@ -349,7 +352,7 @@
         $("apiUrl").textContent = "Não configurado";
         if (isPlaceholderBase) {
           statusApiBase.textContent = "✗ Placeholder não substituído";
-        } else if (!apiBase || apiBase.trim().length === 0) {
+        } else if (!apiBaseTrimmed || apiBaseTrimmed.length === 0) {
           statusApiBase.textContent = "✗ Vazio";
         } else {
           statusApiBase.textContent = "✗ Não configurado";
@@ -358,7 +361,7 @@
       }
       
       // Verifica API_KEY
-      const apiKeyOk = apiKey && !isPlaceholderKey && apiKey.trim().length > 0;
+      const apiKeyOk = apiKeyTrimmed && !isPlaceholderKey && apiKeyTrimmed.length > 0;
       console.log("DEBUG - apiKeyOk:", apiKeyOk);
       const statusApiKey = $("statusApiKey");
       if (apiKeyOk) {
@@ -367,7 +370,7 @@
       } else {
         if (isPlaceholderKey) {
           statusApiKey.textContent = "✗ Placeholder não substituído";
-        } else if (!apiKey || apiKey.trim().length === 0) {
+        } else if (!apiKeyTrimmed || apiKeyTrimmed.length === 0) {
           statusApiKey.textContent = "✗ Vazio";
         } else {
           statusApiKey.textContent = "✗ Não configurado";
