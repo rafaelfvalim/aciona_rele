@@ -379,6 +379,51 @@
     function showMainScreen() {
       loginScreen.classList.add('hidden');
       mainScreen.classList.remove('hidden');
+      // Carrega o estado atual do relé ao mostrar a tela principal
+      carregarEstadoRele();
+    }
+
+    async function carregarEstadoRele() {
+      try {
+        setStatus("Carregando estado...", "loading");
+        const url = `${API_BASE_URL}/rele?api_key=${encodeURIComponent(API_KEY)}`;
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          },
+          cache: 'no-store',
+          mode: 'cors'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.ok && data.desired) {
+          // Atualiza a interface com o estado atual
+          const estado = data.desired.toLowerCase();
+          updateButtonStates(estado);
+          
+          // Mostra informações adicionais se disponíveis
+          if (data.last_applied) {
+            const lastApplied = data.last_applied.toLowerCase();
+            const statusText = estado === "on" ? "Ligado" : "Desligado";
+            setStatus(`Estado: ${statusText} | Último aplicado: ${lastApplied === "on" ? "Ligado" : "Desligado"}`, "info");
+          } else {
+            setStatus(estado === "on" ? "Ligado" : "Desligado", estado === "on" ? "success" : "info");
+          }
+        } else {
+          setStatus("Erro ao carregar estado", "error");
+        }
+      } catch (error) {
+        console.error("Erro ao carregar estado do relé:", error);
+        setStatus("Erro ao carregar estado", "error");
+        // Não mostra erro na interface, apenas no console
+      }
     }
 
     function fazerLogin() {
