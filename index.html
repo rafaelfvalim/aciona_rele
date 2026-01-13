@@ -230,25 +230,21 @@
           <div style="display: flex; gap: 12px; justify-content: center; align-items: center;">
             <button 
               id="btnOff" 
-              onclick="setApplied('off')"
-              style="min-width: 100px; background: rgba(255, 91, 110, .3); border-color: rgba(255, 91, 110, .5);"
+              onclick="acionarRele('off')"
+              style="min-width: 120px; background: rgba(255, 91, 110, .3); border-color: rgba(255, 91, 110, .5);"
             >
               OFF
             </button>
-            <span class="status-value" id="appliedStatus" style="min-width: 60px; text-align: center;">off</span>
+            <span class="status-value" id="appliedStatus" style="min-width: 60px; text-align: center;">—</span>
             <button 
               id="btnOn" 
-              onclick="setApplied('on')"
-              style="min-width: 100px; background: rgba(39, 194, 155, .3); border-color: rgba(39, 194, 155, .5);"
+              onclick="acionarRele('on')"
+              style="min-width: 120px; background: rgba(39, 194, 155, .3); border-color: rgba(39, 194, 155, .5);"
             >
               ON
             </button>
           </div>
         </div>
-
-        <button id="btnAcionar" onclick="acionarRele()">
-          Acionar Relé
-        </button>
 
         <div class="message" id="message"></div>
       </div>
@@ -258,10 +254,8 @@
   <script>
     const API_BASE_URL = "https://sites-api-rele.aal5pu.easypanel.host";
     const API_KEY = "XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe";
-    let appliedValue = "off";
 
     const $ = (id) => document.getElementById(id);
-    const btnAcionar = $("btnAcionar");
     const messageEl = $("message");
     const connectionStatusEl = $("connectionStatus");
     const badgeStatusEl = $("badgeStatus");
@@ -269,15 +263,14 @@
     const btnOn = $("btnOn");
     const btnOff = $("btnOff");
 
-    function setApplied(value) {
-      appliedValue = value;
-      appliedStatusEl.textContent = value;
-      
-      if (value === "on") {
+    function updateButtonStates(activeValue) {
+      if (activeValue === "on") {
+        appliedStatusEl.textContent = "on";
         appliedStatusEl.className = "status-value success";
         btnOn.style.background = "linear-gradient(90deg, rgba(39, 194, 155, .55), rgba(39, 194, 155, .35))";
         btnOff.style.background = "rgba(255, 91, 110, .3)";
       } else {
+        appliedStatusEl.textContent = "off";
         appliedStatusEl.className = "status-value error";
         btnOff.style.background = "linear-gradient(90deg, rgba(255, 91, 110, .55), rgba(255, 91, 110, .35))";
         btnOn.style.background = "rgba(39, 194, 155, .3)";
@@ -306,10 +299,12 @@
       }, 5000);
     }
 
-    async function acionarRele() {
-      btnAcionar.disabled = true;
+    async function acionarRele(appliedValue) {
+      btnOn.disabled = true;
+      btnOff.disabled = true;
       setStatus("Enviando comando...", "loading");
       messageEl.classList.remove("show");
+      updateButtonStates(appliedValue);
 
       try {
         const url = `${API_BASE_URL}/rele`;
@@ -358,8 +353,11 @@
         
         setStatus("Erro ao acionar", "error");
         showMessage(`Erro: ${errorMsg}`, "error");
+        appliedStatusEl.textContent = "—";
+        appliedStatusEl.className = "status-value";
       } finally {
-        btnAcionar.disabled = false;
+        btnOn.disabled = false;
+        btnOff.disabled = false;
       }
     }
   </script>
