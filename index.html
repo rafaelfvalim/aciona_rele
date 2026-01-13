@@ -205,6 +205,50 @@
       border: 1px solid rgba(241, 181, 74, .3);
       color: var(--warn);
     }
+
+    .config-box{
+      margin-bottom: 24px;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(0,0,0,.18);
+      border: 1px solid var(--border);
+    }
+
+    .config-item{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .config-item:last-child{
+      border-bottom: none;
+    }
+
+    .config-label{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .config-status{
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .config-status.ok{
+      background: rgba(39, 194, 155, .2);
+      color: var(--ok);
+      border: 1px solid rgba(39, 194, 155, .3);
+    }
+
+    .config-status.error{
+      background: rgba(255, 91, 110, .2);
+      color: var(--bad);
+      border: 1px solid rgba(255, 91, 110, .3);
+    }
   </style>
 </head>
 
@@ -225,6 +269,18 @@
         <!-- Campos ocultos para variáveis de ambiente -->
         <input id="apiBase" type="hidden" value="__API_BASE_URL__" />
         <input id="apiKey" type="hidden" value="__API_KEY__" />
+
+        <div class="config-box" id="configBox">
+          <div class="status-label" style="margin-bottom: 12px;">Configuração</div>
+          <div class="config-item">
+            <span class="config-label">API_BASE_URL</span>
+            <span class="config-status" id="statusApiBase">Verificando...</span>
+          </div>
+          <div class="config-item">
+            <span class="config-label">API_KEY</span>
+            <span class="config-status" id="statusApiKey">Verificando...</span>
+          </div>
+        </div>
 
         <div class="status-box">
           <div class="status-label">Status da Conexão</div>
@@ -247,27 +303,50 @@
     const connectionStatusEl = $("connectionStatus");
     const badgeStatusEl = $("badgeStatus");
 
-    // Atualiza a URL da API no badge
+    // Atualiza a URL da API no badge e verifica configuração
     function updateApiUrl() {
       const apiBase = $("apiBase").value;
       const apiKey = $("apiKey").value;
       
-      if (apiBase && apiBase !== "__API_BASE_URL__") {
+      // Verifica API_BASE_URL
+      const apiBaseOk = apiBase && apiBase !== "__API_BASE_URL__";
+      const statusApiBase = $("statusApiBase");
+      if (apiBaseOk) {
         try {
           $("apiUrl").textContent = new URL(apiBase).hostname || apiBase;
+          statusApiBase.textContent = "✓ Configurado";
+          statusApiBase.className = "config-status ok";
         } catch (e) {
           $("apiUrl").textContent = apiBase.substring(0, 30) + "...";
+          statusApiBase.textContent = "✓ Configurado";
+          statusApiBase.className = "config-status ok";
         }
       } else {
         $("apiUrl").textContent = "Não configurado";
-        setStatus("Configure API_BASE_URL e API_KEY", "error");
+        statusApiBase.textContent = "✗ Não configurado";
+        statusApiBase.className = "config-status error";
       }
       
-      // Verifica se a API_KEY também está configurada
-      if (!apiKey || apiKey === "__API_KEY__") {
-        if (apiBase && apiBase !== "__API_BASE_URL__") {
-          setStatus("Configure API_KEY", "error");
-        }
+      // Verifica API_KEY
+      const apiKeyOk = apiKey && apiKey !== "__API_KEY__";
+      const statusApiKey = $("statusApiKey");
+      if (apiKeyOk) {
+        statusApiKey.textContent = "✓ Configurado";
+        statusApiKey.className = "config-status ok";
+      } else {
+        statusApiKey.textContent = "✗ Não configurado";
+        statusApiKey.className = "config-status error";
+      }
+      
+      // Atualiza status geral
+      if (apiBaseOk && apiKeyOk) {
+        setStatus("Pronto para acionar", "info");
+      } else if (!apiBaseOk && !apiKeyOk) {
+        setStatus("Configure API_BASE_URL e API_KEY", "error");
+      } else if (!apiBaseOk) {
+        setStatus("Configure API_BASE_URL", "error");
+      } else {
+        setStatus("Configure API_KEY", "error");
       }
     }
 
@@ -353,7 +432,6 @@
 
     // Inicialização
     updateApiUrl();
-    setStatus("Pronto", "info");
   </script>
 </body>
 </html>
