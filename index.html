@@ -305,8 +305,16 @@
 
     // Atualiza a URL da API no badge e verifica configuração
     function updateApiUrl() {
-      const apiBase = $("apiBase").value;
-      const apiKey = $("apiKey").value;
+      const apiBaseEl = $("apiBase");
+      const apiKeyEl = $("apiKey");
+      
+      if (!apiBaseEl || !apiKeyEl) {
+        console.error("Elementos não encontrados!");
+        return;
+      }
+      
+      const apiBase = apiBaseEl.value || "";
+      const apiKey = apiKeyEl.value || "";
       
       // Debug: log dos valores lidos (sem expor a chave completa)
       console.log("DEBUG - API_BASE_URL:", apiBase ? `${apiBase.substring(0, 30)}...` : "(vazio)");
@@ -315,10 +323,11 @@
       console.log("DEBUG - API_KEY === '__API_KEY__':", apiKey === "__API_KEY__");
       
       // Verifica se os placeholders ainda estão presentes (não foram substituídos)
-      const placeholderNotReplaced = apiBase === "__API_BASE_URL__" || apiKey === "__API_KEY__";
+      const isPlaceholderBase = apiBase === "__API_BASE_URL__";
+      const isPlaceholderKey = apiKey === "__API_KEY__";
       
       // Verifica API_BASE_URL
-      const apiBaseOk = apiBase && apiBase !== "__API_BASE_URL__" && apiBase.trim().length > 0;
+      const apiBaseOk = apiBase && !isPlaceholderBase && apiBase.trim().length > 0;
       const statusApiBase = $("statusApiBase");
       if (apiBaseOk) {
         try {
@@ -332,7 +341,7 @@
         }
       } else {
         $("apiUrl").textContent = "Não configurado";
-        if (apiBase === "__API_BASE_URL__") {
+        if (isPlaceholderBase) {
           statusApiBase.textContent = "✗ Placeholder não substituído";
         } else if (!apiBase || apiBase.trim().length === 0) {
           statusApiBase.textContent = "✗ Vazio";
@@ -343,13 +352,13 @@
       }
       
       // Verifica API_KEY
-      const apiKeyOk = apiKey && apiKey !== "__API_KEY__" && apiKey.trim().length > 0;
+      const apiKeyOk = apiKey && !isPlaceholderKey && apiKey.trim().length > 0;
       const statusApiKey = $("statusApiKey");
       if (apiKeyOk) {
         statusApiKey.textContent = "✓ Configurado";
         statusApiKey.className = "config-status ok";
       } else {
-        if (apiKey === "__API_KEY__") {
+        if (isPlaceholderKey) {
           statusApiKey.textContent = "✗ Placeholder não substituído";
         } else if (!apiKey || apiKey.trim().length === 0) {
           statusApiKey.textContent = "✗ Vazio";
