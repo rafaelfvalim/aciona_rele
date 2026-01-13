@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teste Local - Controle de Relé</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .test-box {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    .success { color: #4caf50; }
+    .error { color: #f44336; }
+    .info { color: #2196f3; }
+    button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #45a049; }
+    pre {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teste Local - Verificação de Variáveis</h1>
+  
+  <div class="test-box">
+    <h2>1. Valores nos campos hidden</h2>
+    <p>API_BASE_URL: <span id="valApiBase" class="info">carregando...</span></p>
+    <p>API_KEY: <span id="valApiKey" class="info">carregando...</span></p>
+  </div>
+
+  <div class="test-box">
+    <h2>2. Verificações</h2>
+    <p>É placeholder API_BASE_URL? <span id="isPlaceholderBase" class="info">-</span></p>
+    <p>É placeholder API_KEY? <span id="isPlaceholderKey" class="info">-</span></p>
+    <p>API_BASE_URL OK? <span id="apiBaseOk" class="info">-</span></p>
+    <p>API_KEY OK? <span id="apiKeyOk" class="info">-</span></p>
+  </div>
+
+  <div class="test-box">
+    <h2>3. Logs do Console</h2>
+    <pre id="consoleLogs"></pre>
+    <button onclick="testar()">Testar Novamente</button>
+    <button onclick="limparLogs()">Limpar Logs</button>
+  </div>
+
+  <div class="test-box">
+    <h2>4. HTML dos campos</h2>
+    <pre id="htmlFields"></pre>
+  </div>
+
+  <script>
+    const logs = [];
+    const originalLog = console.log;
+    const originalError = console.error;
+
+    console.log = function(...args) {
+      logs.push({ type: 'log', args: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ') });
+      originalLog.apply(console, args);
+      updateLogs();
+    };
+
+    console.error = function(...args) {
+      logs.push({ type: 'error', args: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ') });
+      originalError.apply(console, args);
+      updateLogs();
+    };
+
+    function updateLogs() {
+      const logsEl = document.getElementById('consoleLogs');
+      logsEl.textContent = logs.slice(-20).map(l => `[${l.type}] ${l.args}`).join('\n');
+    }
+
+    function limparLogs() {
+      logs.length = 0;
+      updateLogs();
+    }
+
+    function testar() {
+      const apiBaseEl = document.getElementById('apiBase');
+      const apiKeyEl = document.getElementById('apiKey');
+
+      if (!apiBaseEl || !apiKeyEl) {
+        console.error('Elementos não encontrados!');
+        return;
+      }
+
+      const apiBase = apiBaseEl.value || "";
+      const apiKey = apiKeyEl.value || "";
+
+      // Mostra valores
+      document.getElementById('valApiBase').textContent = apiBase ? `${apiBase.substring(0, 50)}...` : '(vazio)';
+      document.getElementById('valApiKey').textContent = apiKey ? `(${apiKey.length} caracteres)` : '(vazio)';
+
+      // Verificações
+      const apiBaseTrimmed = apiBase.trim();
+      const apiKeyTrimmed = apiKey.trim();
+      const isPlaceholderBase = apiBaseTrimmed === "__API_BASE_URL__";
+      const isPlaceholderKey = apiKeyTrimmed === "__API_KEY__";
+
+      document.getElementById('isPlaceholderBase').textContent = isPlaceholderBase;
+      document.getElementById('isPlaceholderBase').className = isPlaceholderBase ? 'error' : 'success';
+      
+      document.getElementById('isPlaceholderKey').textContent = isPlaceholderKey;
+      document.getElementById('isPlaceholderKey').className = isPlaceholderKey ? 'error' : 'success';
+
+      const apiBaseOk = apiBaseTrimmed && !isPlaceholderBase && apiBaseTrimmed.length > 0;
+      const apiKeyOk = apiKeyTrimmed && !isPlaceholderKey && apiKeyTrimmed.length > 0;
+
+      document.getElementById('apiBaseOk').textContent = apiBaseOk;
+      document.getElementById('apiBaseOk').className = apiBaseOk ? 'success' : 'error';
+      
+      document.getElementById('apiKeyOk').textContent = apiKeyOk;
+      document.getElementById('apiKeyOk').className = apiKeyOk ? 'success' : 'error';
+
+      // Mostra HTML
+      document.getElementById('htmlFields').textContent = 
+        `apiBase: ${apiBaseEl.outerHTML}\napiKey: ${apiKeyEl.outerHTML}`;
+
+      // Logs de debug
+      console.log("DEBUG - API_BASE_URL:", apiBase ? `${apiBase.substring(0, 30)}...` : "(vazio)");
+      console.log("DEBUG - API_KEY:", apiKey ? `(${apiKey.length} caracteres)` : "(vazio)");
+      console.log("DEBUG - API_BASE_URL === '__API_BASE_URL__':", apiBase === "__API_BASE_URL__");
+      console.log("DEBUG - API_KEY === '__API_KEY__':", apiKey === "__API_KEY__");
+      console.log("DEBUG - isPlaceholderBase:", isPlaceholderBase);
+      console.log("DEBUG - isPlaceholderKey:", isPlaceholderKey);
+      console.log("DEBUG - apiBaseTrimmed.length:", apiBaseTrimmed.length);
+      console.log("DEBUG - apiKeyTrimmed.length:", apiKeyTrimmed.length);
+      console.log("DEBUG - apiBaseOk:", apiBaseOk);
+      console.log("DEBUG - apiKeyOk:", apiKeyOk);
+    }
+
+    // Simula os campos hidden do index.html original
+    const apiBaseInput = document.createElement('input');
+    apiBaseInput.id = 'apiBase';
+    apiBaseInput.type = 'hidden';
+    apiBaseInput.value = '__API_BASE_URL__'; // Simula placeholder não substituído
+    document.body.appendChild(apiBaseInput);
+
+    const apiKeyInput = document.createElement('input');
+    apiKeyInput.id = 'apiKey';
+    apiKeyInput.type = 'hidden';
+    apiKeyInput.value = '__API_KEY__'; // Simula placeholder não substituído
+    document.body.appendChild(apiKeyInput);
+
+    // Testa ao carregar
+    setTimeout(testar, 100);
+  </script>
+</body>
+</html>
