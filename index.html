@@ -316,10 +316,11 @@
         <div style="margin-bottom: 20px;">
           <div class="status-label" style="margin-bottom: 16px;">Estado do Relé</div>
           <div class="toggle-label">
-            <label class="toggle-switch">
-              <input type="checkbox" id="toggleRele" onchange="handleToggleRele()" />
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="toggle-switch" id="toggleSwitch" onclick="handleToggleRele()">
+              <div class="toggle-slider" id="toggleSlider">
+                <div class="toggle-slider-knob"></div>
+              </div>
+            </div>
             <div class="toggle-status" id="toggleStatus">—</div>
           </div>
         </div>
@@ -339,10 +340,13 @@
     const messageEl = $("message");
     const connectionStatusEl = $("connectionStatus");
     const badgeStatusEl = $("badgeStatus");
-    const toggleRele = $("toggleRele");
+    const toggleSwitch = $("toggleSwitch");
+    const toggleSlider = $("toggleSlider");
     const toggleStatus = $("toggleStatus");
     const loginScreen = $("loginScreen");
     const mainScreen = $("mainScreen");
+    
+    let currentState = "off";
 
     // Verifica se já está logado
     function checkLogin() {
@@ -474,14 +478,24 @@
     });
 
     function updateToggleState(activeValue) {
-      const isOn = activeValue === "on";
-      toggleRele.checked = isOn;
+      currentState = activeValue.toLowerCase();
+      const isOn = currentState === "on";
+      
+      if (isOn) {
+        toggleSlider.classList.add("on");
+      } else {
+        toggleSlider.classList.remove("on");
+      }
+      
       toggleStatus.textContent = isOn ? "LIGADO" : "DESLIGADO";
-      toggleStatus.className = `toggle-status ${activeValue}`;
+      toggleStatus.className = `toggle-status ${currentState}`;
     }
 
     function handleToggleRele() {
-      const newState = toggleRele.checked ? "on" : "off";
+      if (toggleSwitch.classList.contains("disabled")) {
+        return;
+      }
+      const newState = currentState === "on" ? "off" : "on";
       acionarRele(newState);
     }
 
@@ -508,7 +522,7 @@
     }
 
     async function acionarRele(appliedValue) {
-      toggleRele.disabled = true;
+      toggleSwitch.classList.add("disabled");
       setStatus("Enviando comando...", "loading");
       messageEl.classList.remove("show");
       updateToggleState(appliedValue);
@@ -570,7 +584,7 @@
         // Reverte o toggle em caso de erro
         setTimeout(() => carregarEstadoRele(), 500);
       } finally {
-        toggleRele.disabled = false;
+        toggleSwitch.classList.remove("disabled");
       }
     }
   </script>
