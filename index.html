@@ -250,10 +250,24 @@
     // Atualiza a URL da API no badge
     function updateApiUrl() {
       const apiBase = $("apiBase").value;
+      const apiKey = $("apiKey").value;
+      
       if (apiBase && apiBase !== "__API_BASE_URL__") {
-        $("apiUrl").textContent = new URL(apiBase).hostname || apiBase;
+        try {
+          $("apiUrl").textContent = new URL(apiBase).hostname || apiBase;
+        } catch (e) {
+          $("apiUrl").textContent = apiBase.substring(0, 30) + "...";
+        }
       } else {
         $("apiUrl").textContent = "Não configurado";
+        setStatus("Configure API_BASE_URL e API_KEY", "error");
+      }
+      
+      // Verifica se a API_KEY também está configurada
+      if (!apiKey || apiKey === "__API_KEY__") {
+        if (apiBase && apiBase !== "__API_BASE_URL__") {
+          setStatus("Configure API_KEY", "error");
+        }
       }
     }
 
@@ -285,13 +299,13 @@
       const apiKey = $("apiKey").value.trim();
 
       if (!apiBase || apiBase === "__API_BASE_URL__") {
-        showMessage("Erro: API_BASE_URL não configurada.", "error");
+        showMessage("Erro: API_BASE_URL não configurada. Configure a variável de ambiente API_BASE_URL no servidor e reinicie o container.", "error");
         setStatus("Erro de configuração", "error");
         return;
       }
 
       if (!apiKey || apiKey === "__API_KEY__") {
-        showMessage("Erro: API_KEY não configurada.", "error");
+        showMessage("Erro: API_KEY não configurada. Configure a variável de ambiente API_KEY no servidor e reinicie o container.", "error");
         setStatus("Erro de configuração", "error");
         return;
       }
