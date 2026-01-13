@@ -314,23 +314,13 @@
         </div>
 
         <div style="margin-bottom: 20px;">
-          <div class="status-label" style="margin-bottom: 8px;">Estado do Relé</div>
-          <div style="display: flex; gap: 12px; justify-content: center; align-items: center;">
-            <button 
-              id="btnOff" 
-              onclick="acionarRele('off')"
-              style="min-width: 120px; background: rgba(255, 91, 110, .3); border-color: rgba(255, 91, 110, .5);"
-            >
-              OFF
-            </button>
-            <span class="status-value" id="appliedStatus" style="min-width: 60px; text-align: center;">—</span>
-            <button 
-              id="btnOn" 
-              onclick="acionarRele('on')"
-              style="min-width: 120px; background: rgba(39, 194, 155, .3); border-color: rgba(39, 194, 155, .5);"
-            >
-              ON
-            </button>
+          <div class="status-label" style="margin-bottom: 16px;">Estado do Relé</div>
+          <div class="toggle-label">
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleRele" onchange="toggleRele()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="toggle-status" id="toggleStatus">—</div>
           </div>
         </div>
 
@@ -406,7 +396,7 @@
         if (data.ok && data.last_applied) {
           // Atualiza a interface com o estado atual (usa last_applied)
           const estado = data.last_applied.toLowerCase();
-          updateButtonStates(estado);
+          updateToggleState(estado);
           
           // Mostra apenas o estado atual
           const statusText = estado === "on" ? "Ligado" : "Desligado";
@@ -484,18 +474,16 @@
       checkLogin();
     });
 
-    function updateButtonStates(activeValue) {
-      if (activeValue === "on") {
-        appliedStatusEl.textContent = "on";
-        appliedStatusEl.className = "status-value success";
-        btnOn.style.background = "linear-gradient(90deg, rgba(39, 194, 155, .55), rgba(39, 194, 155, .35))";
-        btnOff.style.background = "rgba(255, 91, 110, .3)";
-      } else {
-        appliedStatusEl.textContent = "off";
-        appliedStatusEl.className = "status-value error";
-        btnOff.style.background = "linear-gradient(90deg, rgba(255, 91, 110, .55), rgba(255, 91, 110, .35))";
-        btnOn.style.background = "rgba(39, 194, 155, .3)";
-      }
+    function updateToggleState(activeValue) {
+      const isOn = activeValue === "on";
+      toggleRele.checked = isOn;
+      toggleStatus.textContent = isOn ? "LIGADO" : "DESLIGADO";
+      toggleStatus.className = `toggle-status ${activeValue}`;
+    }
+
+    function toggleRele() {
+      const newState = toggleRele.checked ? "on" : "off";
+      acionarRele(newState);
     }
 
     function setStatus(status, type = "info") {
@@ -521,11 +509,10 @@
     }
 
     async function acionarRele(appliedValue) {
-      btnOn.disabled = true;
-      btnOff.disabled = true;
+      toggleRele.disabled = true;
       setStatus("Enviando comando...", "loading");
       messageEl.classList.remove("show");
-      updateButtonStates(appliedValue);
+      updateToggleState(appliedValue);
 
       try {
         const url = `${API_BASE_URL}/rele`;
@@ -579,11 +566,12 @@
         
         setStatus("Erro ao acionar", "error");
         showMessage(`Erro: ${errorMsg}`, "error");
-        appliedStatusEl.textContent = "—";
-        appliedStatusEl.className = "status-value";
+        toggleStatus.textContent = "—";
+        toggleStatus.className = "toggle-status";
+        // Reverte o toggle em caso de erro
+        setTimeout(() => carregarEstadoRele(), 500);
       } finally {
-        btnOn.disabled = false;
-        btnOff.disabled = false;
+        toggleRele.disabled = false;
       }
     }
   </script>
