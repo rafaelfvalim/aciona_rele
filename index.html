@@ -296,7 +296,7 @@
         <div class="title">
           <h1>Controle de Relé</h1>
           <div class="subtitle">
-            <span class="badge"><span class="dot"></span> API: <strong id="apiUrl">sites-api-rele.aal5pu.easypanel.host</strong></span>
+            <span class="badge"><span class="dot"></span> API: <strong id="apiUrl">sites-automator.aal5pu.easypanel.host</strong></span>
             <span class="badge" id="badgeStatus"><span class="dot"></span> Status: <strong>Pronto</strong></span>
           </div>
         </div>
@@ -331,7 +331,7 @@
   </div>
 
   <script>
-    const API_BASE_URL = "__API_BASE_URL__";
+    const AUTOMATOR_URL = "https://sites-automator.aal5pu.easypanel.host";
     const API_KEY = "__API_KEY__";
     const LOGIN_USER = "__LOGIN_USER__";
     const LOGIN_PASSWORD = "__LOGIN_PASSWORD__";
@@ -372,46 +372,9 @@
     function showMainScreen() {
       loginScreen.classList.add('hidden');
       mainScreen.classList.remove('hidden');
-      // Carrega o estado atual do relé ao mostrar a tela principal
-      carregarEstadoRele();
-    }
-
-    async function carregarEstadoRele() {
-      try {
-        setStatus("Carregando estado...", "loading");
-        const url = `${API_BASE_URL}/rele?api_key=${encodeURIComponent(API_KEY)}`;
-        
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          },
-          cache: 'no-store',
-          mode: 'cors'
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.ok && data.last_applied) {
-          // Atualiza a interface com o estado atual (usa last_applied)
-          const estado = data.last_applied.toLowerCase();
-          updateToggleState(estado);
-          
-          // Mostra apenas o estado atual
-          const statusText = estado === "on" ? "Ligado" : "Desligado";
-          setStatus(`Estado: ${statusText}`, estado === "on" ? "success" : "info");
-        } else {
-          setStatus("Erro ao carregar estado", "error");
-        }
-      } catch (error) {
-        console.error("Erro ao carregar estado do relé:", error);
-        setStatus("Erro ao carregar estado", "error");
-        // Não mostra erro na interface, apenas no console
-      }
+      // Define estado inicial como off
+      updateToggleState("off");
+      setStatus("Pronto", "info");
     }
 
     function fazerLogin() {
@@ -528,10 +491,14 @@
       updateToggleState(appliedValue);
 
       try {
-        const url = `${API_BASE_URL}/rele`;
+        const url = `${AUTOMATOR_URL}/update`;
         const body = {
           api_key: API_KEY,
-          applied: appliedValue
+          field1: 12.4,
+          field2: 100,
+          field3: 7,
+          field4: 0.98,
+          status: "pms5003"
         };
         
         console.log("Enviando requisição para:", url);
@@ -562,10 +529,6 @@
         const estadoTexto = appliedValue === "on" ? "ligado" : "desligado";
         showMessage(`Relé ${estadoTexto} com sucesso!`, "success");
         
-        // Recarrega o estado após um pequeno delay para garantir sincronização
-        // Usa last_applied para mostrar o estado real
-        setTimeout(carregarEstadoRele, 1000);
-        
       } catch (error) {
         let errorMsg = error.message || String(error);
         
@@ -574,15 +537,14 @@
         console.error("Stack:", error.stack);
         
         if (errorMsg.includes("Failed to fetch") || errorMsg.includes("network") || errorMsg.includes("CORS") || error.name === "TypeError") {
-          errorMsg = `Erro de conexão/CORS: ${errorMsg}. Verifique se a API está acessível e se CORS está configurado. URL: ${API_BASE_URL}/rele`;
+          errorMsg = `Erro de conexão/CORS: ${errorMsg}. Verifique se a API está acessível e se CORS está configurado. URL: ${AUTOMATOR_URL}/update`;
         }
         
         setStatus("Erro ao acionar", "error");
         showMessage(`Erro: ${errorMsg}`, "error");
-        toggleStatus.textContent = "—";
-        toggleStatus.className = "toggle-status";
         // Reverte o toggle em caso de erro
-        setTimeout(() => carregarEstadoRele(), 500);
+        const previousState = currentState === "on" ? "off" : "on";
+        updateToggleState(previousState);
       } finally {
         toggleSwitch.classList.remove("disabled");
       }
