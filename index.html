@@ -314,15 +314,9 @@
         </div>
 
         <div style="margin-bottom: 20px;">
-          <div class="status-label" style="margin-bottom: 16px;">Estado do Relé</div>
-          <div class="toggle-label">
-            <div class="toggle-switch" id="toggleSwitch" onclick="handleToggleRele()">
-              <div class="toggle-slider" id="toggleSlider">
-                <div class="toggle-slider-knob"></div>
-              </div>
-            </div>
-            <div class="toggle-status" id="toggleStatus">—</div>
-          </div>
+          <button id="btnAcionar" onclick="acionarRele()" style="min-width: 200px;">
+            Acionar Relé
+          </button>
         </div>
 
         <div class="message" id="message"></div>
@@ -340,13 +334,9 @@
     const messageEl = $("message");
     const connectionStatusEl = $("connectionStatus");
     const badgeStatusEl = $("badgeStatus");
-    const toggleSwitch = $("toggleSwitch");
-    const toggleSlider = $("toggleSlider");
-    const toggleStatus = $("toggleStatus");
+    const btnAcionar = $("btnAcionar");
     const loginScreen = $("loginScreen");
     const mainScreen = $("mainScreen");
-    
-    let currentState = "off";
 
     // Verifica se já está logado
     function checkLogin() {
@@ -372,8 +362,6 @@
     function showMainScreen() {
       loginScreen.classList.add('hidden');
       mainScreen.classList.remove('hidden');
-      // Define estado inicial como off
-      updateToggleState("off");
       setStatus("Pronto", "info");
     }
 
@@ -440,27 +428,6 @@
       checkLogin();
     });
 
-    function updateToggleState(activeValue) {
-      currentState = activeValue.toLowerCase();
-      const isOn = currentState === "on";
-      
-      if (isOn) {
-        toggleSlider.classList.add("on");
-      } else {
-        toggleSlider.classList.remove("on");
-      }
-      
-      toggleStatus.textContent = isOn ? "LIGADO" : "DESLIGADO";
-      toggleStatus.className = `toggle-status ${currentState}`;
-    }
-
-    function handleToggleRele() {
-      if (toggleSwitch.classList.contains("disabled")) {
-        return;
-      }
-      const newState = currentState === "on" ? "off" : "on";
-      acionarRele(newState);
-    }
 
     function setStatus(status, type = "info") {
       connectionStatusEl.textContent = status;
@@ -484,11 +451,10 @@
       }, 5000);
     }
 
-    async function acionarRele(appliedValue) {
-      toggleSwitch.classList.add("disabled");
+    async function acionarRele() {
+      btnAcionar.disabled = true;
       setStatus("Enviando comando...", "loading");
       messageEl.classList.remove("show");
-      updateToggleState(appliedValue);
 
       try {
         const url = `${AUTOMATOR_URL}/update`;
@@ -526,8 +492,7 @@
         const data = await response.json();
         
         setStatus("Comando enviado com sucesso", "success");
-        const estadoTexto = appliedValue === "on" ? "ligado" : "desligado";
-        showMessage(`Relé ${estadoTexto} com sucesso!`, "success");
+        showMessage("Relé acionado com sucesso!", "success");
         
       } catch (error) {
         let errorMsg = error.message || String(error);
@@ -542,11 +507,8 @@
         
         setStatus("Erro ao acionar", "error");
         showMessage(`Erro: ${errorMsg}`, "error");
-        // Reverte o toggle em caso de erro
-        const previousState = currentState === "on" ? "off" : "on";
-        updateToggleState(previousState);
       } finally {
-        toggleSwitch.classList.remove("disabled");
+        btnAcionar.disabled = false;
       }
     }
   </script>
