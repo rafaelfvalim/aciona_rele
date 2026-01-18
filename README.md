@@ -14,10 +14,9 @@ docker build -t controle-rele .
 
 ```bash
 docker run -p 8080:80 \
-  -e API_BASE_URL=https://sites-api-rele.aal5pu.easypanel.host \
   -e API_KEY=XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe \
-  -e LOGIN_USER=admin \
-  -e LOGIN_PASSWORD=senha-secreta \
+  -e LOGIN_USER=toor \
+  -e LOGIN_PASSWORD=r4f43l11 \
   controle-rele
 ```
 
@@ -29,7 +28,6 @@ Acesse em: http://localhost:8080
 2. Configure o serviço para usar o Dockerfile
 3. A porta padrão é 80 (o Easypanel geralmente mapeia automaticamente)
 4. Configure as variáveis de ambiente obrigatórias:
-   * `API_BASE_URL`: URL base da API (ex: `https://sites-api-rele.aal5pu.easypanel.host`)
    * `API_KEY`: Chave de autenticação da API
    * `LOGIN_USER`: Usuário para login
    * `LOGIN_PASSWORD`: Senha para login
@@ -46,8 +44,6 @@ Acesse em: http://localhost:8080
 
 O dashboard utiliza variáveis de ambiente para configuração:
 
-* **API_BASE_URL** (obrigatório): URL base da API
-   * Exemplo: `https://sites-api-rele.aal5pu.easypanel.host`
 * **API_KEY** (obrigatório): Chave de autenticação da API
    * Esta chave será injetada automaticamente no HTML durante a inicialização do container
 * **LOGIN_USER** (obrigatório): Usuário para autenticação no sistema
@@ -58,10 +54,9 @@ O dashboard utiliza variáveis de ambiente para configuração:
 No painel do Easypanel, adicione as variáveis de ambiente na seção de configuração do serviço:
 
 ```
-API_BASE_URL=https://sites-api-rele.aal5pu.easypanel.host
 API_KEY=XCYtkWPr9rAEaSiSlNItD5rJg6hRYWfe
-LOGIN_USER=admin
-LOGIN_PASSWORD=senha-secreta
+LOGIN_USER=toor
+LOGIN_PASSWORD=r4f43l11
 ```
 
 **Nota:** As variáveis são injetadas no HTML na inicialização do container através do `entrypoint.sh`. Se você alterar as variáveis, será necessário reiniciar o container.
@@ -70,16 +65,20 @@ LOGIN_PASSWORD=senha-secreta
 
 ## API
 
-A aplicação faz requisições POST para o endpoint:
+A aplicação faz requisições POST para o endpoint do automator para gerar um pico falso e acionar o relé:
 
 ```
-POST {API_BASE_URL}/rele
+POST https://sites-automator.aal5pu.easypanel.host/update
 Headers:
   Content-Type: application/json
 Body:
 {
   "api_key": "{API_KEY}",
-  "applied": "on" ou "off"
+  "field1": 12.4,
+  "field2": 100,
+  "field3": 7,
+  "field4": 0.98,
+  "status": "pms5003"
 }
 ```
 
